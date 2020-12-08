@@ -1,0 +1,86 @@
+## Import the relevant libraries (import matplot lib and mpl_toolkits too to help visualise results)
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+## Generate random input data to train on.
+observations = 1000
+# We will work with two variables as inputs. 
+xs = np.random.uniform(low=-10, high=10, size=(observations,1))
+zs = np.random.uniform(low=-10, high=10, size=(observations,1))
+#Use column_stack to combine the two resulting vectors into a matrix.
+inputs = np.column_stack((xs,zs))
+
+# Check if the dimensions of the inputs are as expected - they should be n x k, where n is the number of observations and k is the number of variables. In our case, we expect this to be 1000 x 2.
+print(inputs.shape)
+
+## Generate the targets we will aim at
+# We will add a small random noise to the function.
+noise = np.random.uniform(-1, 1, (observations,1))
+
+# Let's say the weights will be 2 and -3, while the bias is 5.
+targets = 2*xs - 3*zs + 5 + noise
+
+# Check the shape of the targets - we are expecting this to be n x m, where m is the number of output variables. In our case, we expect this to be 1000 x 1.
+print(targets.shape)
+
+## Plot the training data - we should see a strong trend that our model should learn to reproduce.
+# In order to use the 3D plot, the objects should have a certain shape, so we reshape the targets first.
+targets = targets.reshape(observations,)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.plot(xs, zs, targets)
+ax.set_xlabel('xs')
+ax.set_ylabel('zs')
+ax.set_zlabel('Targets')
+ax.view_init(azim=100)
+
+# View the plot
+plt.show()
+
+# Reshape the targets back to the shape that they were in before plotting.
+targets = targets.reshape(observations,1)
+
+## Initialise variables
+# Initialise the weights and biases randomly in some small initial range.
+init_range = 0.1
+
+# Weights are of size k x m, where k is the number of input variables and m is the number of output variables.
+weights = np.random.uniform(low=-init_range, high=init_range, size=(2, 1))
+
+# Biases are of size 1 since there is only 1 output. The bias is a scalar.
+biases = np.random.uniform(low=-init_range, high=init_range, size=1)
+
+# Print the weights and biases
+print (weights)
+print (biases)
+
+## Set a small learning rate (eta)
+learning_rate = 0.02
+
+## Train the model
+# We iterate over our training dataset 100 times.
+for i in range (100):
+    outputs = np.dot(inputs,weights) + biases
+    deltas = outputs - targets
+    loss = np.sum(deltas ** 2) / 2 / observations
+    
+    # Print the loss function value at each step so we can observe whether it is decreasing as desired.
+    print (loss)
+    
+    # Scale the deltas the same way as the loss function so that the learning rate is independent of the number of samples.
+    deltas_scaled = deltas / observations
+    
+    # Apply the gradient descent update rules, we will have to transpose the inputs so that we get an allowed operation.
+    weights = weights - learning_rate * np.dot(inputs.T,deltas_scaled)
+    biases = biases - learning_rate * np.sum(deltas_scaled)
+
+## Print weights and biases to see if we have converfed to what we wanted
+print (weights, biases)
+
+## Plot outputs vs targets
+plt.plot(outputs,targets)
+plt.xlabel('outputs')
+plt.ylabel('targets')
+plt.show()
