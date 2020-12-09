@@ -28,6 +28,10 @@ print(targets.shape)
 # In order to use the 3D plot, the objects should have a certain shape, so we reshape the targets first.
 targets = targets.reshape(observations,)
 
+# Additional code to reshape due to error caused by latest version of matplotlib (3.3.2)
+xs = xs.reshape(observations,)
+zs = zs.reshape(observations,)
+
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.plot(xs, zs, targets)
@@ -41,6 +45,10 @@ plt.show()
 
 # Reshape the targets back to the shape that they were in before plotting.
 targets = targets.reshape(observations,1)
+
+# Additional code to reshape due to error caused by latest version of matplotlib (3.3.2)
+xs = xs.reshape(observations,1)
+zs = zs.reshape(observations,1)
 
 ## Initialise variables
 # Initialise the weights and biases randomly in some small initial range.
