@@ -1,0 +1,55 @@
+## Import the relevant libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+## Generate data with 1000 observations, 2 inputs and 1 output for the model
+observations = 1000
+
+xs = np.random.uniform(low=-10, high=10, size=(observations,1))
+zs = np.random.uniform(low=-10, high=10, size=(observations,1))
+generated_inputs = np.column_stack((xs,zs))
+
+noise = np.random.uniform(-1, 1, (observations,1))
+
+generated_targets = 2*xs - 3*zs + 5 + noise
+
+# Save as a .npz file format
+np.savez('TF_intro', inputs=generated_inputs, targets=generated_targets)
+
+## Solve with TensorFlow
+# Load training data
+training_data = np.load('TF_intro.npz')
+
+# Create model
+input_size = 2
+output_size = 1
+
+model = tf.keras.Sequential([tf.keras.layers.Dense(output_size)])
+
+model.compile(optimizer='sgd', loss='mean_squared_error')
+
+model.fit(training_data['inputs'], training_data['targets'], epochs=100, verbose=2)
+
+## Extract the weights and the bias
+model.layers[0].get_weights()
+
+# Weights:
+weights = model.layers[0].get_weights()[0]
+weights
+
+# Bias:
+bias = model.layers[0].get_weights()[1]
+bias
+
+## Make predictions based on the model
+model.predict_on_batch(training_data['inputs']).round(1)
+
+# Compare with the targets
+training_data['targets'].round(1)
+
+# Plot the outputs and targets to visualise the above. A 45 degree line indicates it is a good model.
+plt.plot(np.squeeze(model.predict_on_batch(training_data['inputs'])), np.squeeze(training_data['targets']))
+plt.xlabel('outputs')
+plt.ylabel('targets')
+plt.show()
